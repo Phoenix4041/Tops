@@ -1,0 +1,8 @@
+parameters:
+    level: 9
+    tmpDir: .phpstan-cache
+    paths:
+        - src/Tops
+    bootstrapFiles:
+        - vendor/autoload.php
+    treatPhpDocTypesAsCertain: false

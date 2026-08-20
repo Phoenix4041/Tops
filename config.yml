@@ -1,0 +1,25 @@
+# Tops - configuracion
+
+persistence:
+  # Archivo SQLite dentro de la carpeta de datos del plugin
+  database-file: "tops.sqlite"
+
+economy:
+  # Proveedor de dinero para el top "Dinero": none | bedrockeconomy | economyapi
+  # El plugin correspondiente debe estar instalado y habilitado.
+  provider: "none"
+
+hologram:
+  # Cantidad de jugadores mostrados en cada holograma
+  top-size: 10
+  # Cada cuantos ticks se recalcula el texto de los hologramas (20 ticks = 1 segundo)
+  refresh-interval-ticks: 100
+  # Cada cuantos ticks se sincroniza el dinero de los jugadores conectados
+  money-sync-interval-ticks: 200
+  # Cuantos jugadores conectados se sincronizan por ciclo (evita picos de lag con el plugin de economia)
+  money-sync-batch-size: 20
+  # Cada cuantos ticks se guarda el tiempo jugado acumulado como respaldo (ademas de guardarse al salir)
+  playtime-flush-interval-ticks: 6000
+
+messages:
+  prefix: "§8[§bTops§8] §r"

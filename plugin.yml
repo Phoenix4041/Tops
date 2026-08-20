@@ -1,0 +1,28 @@
+name: Tops
+version: 1.0.0
+main: Tops\Loader
+api: ["5.0.0"]
+authors:
+  - HVNS
+description: Leaderboards de Kills, Deaths, Dinero y Tiempo jugado con hologramas por categoria.
+load: POSTWORLD
+
+softdepend:
+  - BedrockEconomy
+  - EconomyAPI
+
+commands:
+  tops:
+    description: Gestiona los hologramas de tops del servidor
+    usage: /tops <spawn|despawn|reload>
+
+permissions:
+  tops.command.spawn:
+    description: Permite spawnear un holograma de top
+    default: op
+  tops.command.despawn:
+    description: Permite despawnear un holograma de top
+    default: op
+  tops.command.reload:
+    description: Permite recargar la configuracion del plugin
+    default: op
