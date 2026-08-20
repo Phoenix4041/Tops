@@ -2,6 +2,12 @@
 
 All notable changes to Tops are documented here.
 
+## [1.1.2] - 2026-08-20
+
+### Fixed
+- Hologram entity used `minecraft:armor_stand` as its network type on a bare `Entity`, which doesn't carry the actor components Bedrock expects for that type and simply never rendered client-side. Switched to an invisible mob (`minecraft:pig`), the same approach every working PM5 hologram plugin uses.
+- `StatsRepository` now catches a dead pinned worker instead of letting the exception propagate. An unrelated plugin's AsyncTask (e.g. EconomyAPI's `/topmoney`, which has its own bug) can kill the shared `AsyncPool` worker Tops pins its queries to; when that happens Tops now logs a warning instead of throwing a second crash on top of it (observed as "Crashed while crashing, killing process" during shutdown).
+
 ## [1.1.1] - 2026-08-20
 
 ### Fixed

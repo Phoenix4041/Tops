@@ -47,6 +47,11 @@ final class StatsRepository {
 	}
 
 	private function submit(AsyncTask $task): void {
-		Server::getInstance()->getAsyncPool()->submitTaskToWorker($task, self::WORKER_ID);
+		try {
+			Server::getInstance()->getAsyncPool()->submitTaskToWorker($task, self::WORKER_ID);
+		} catch (\RuntimeException $e) {
+			// The pinned worker can be killed by an unrelated plugin's task; don't compound that into a second crash.
+			Loader::getInstance()->getLogger()->warning("Could not submit " . $task::class . ": " . $e->getMessage());
+		}
 	}
 }

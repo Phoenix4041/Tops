@@ -17,7 +17,8 @@ final class TopsHologram extends Entity {
 	private TopCategory $category = TopCategory::KILLS;
 
 	public static function getNetworkTypeId(): string {
-		return EntityIds::ARMOR_STAND;
+		// "armor_stand" on a bare Entity lacks the actor components Bedrock needs and doesn't render; an invisible mob does.
+		return EntityIds::PIG;
 	}
 
 	protected function initEntity(CompoundTag $nbt): void {

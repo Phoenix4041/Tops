@@ -184,7 +184,7 @@ This project is licensed under the Private License - see [LICENSE](LICENSE) file
 
 | Version | Release Date | Status | Support |
 |---------|-------------|--------|---------|
-| 1.1.1 | 2026-08-20 | 🟢 Active | Full support |
+| 1.1.2 | 2026-08-20 | 🟢 Active | Full support |
 
 See [CHANGELOG.md](CHANGELOG.md) for the full version history.
 
