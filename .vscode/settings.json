@@ -1,0 +1,4 @@
+{
+	"phpstan.configFile": "phpstan.neon",
+	"phpstan.enabled": true
+}
