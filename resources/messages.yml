@@ -1,0 +1,22 @@
+# Tops - textos y colores. Usa & para colores. Se puede recargar en caliente con /tops reload.
+
+prefix: "&8[&bTops&8] &r"
+
+# Mensaje cuando todavia no hay datos para una categoria.
+no-data-message: "&7Sin datos todavia"
+
+# Formato de cada linea del top. Placeholders: {pos} {name} {value}
+line-format: "&7#{pos} &f{name} &e{value}"
+
+# Titulo (primera linea) de cada holograma.
+titles:
+  kills: "&l&6Kills"
+  deaths: "&l&cMuertes"
+  dinero: "&l&aDinero"
+  tiempo: "&l&bTiempo Jugado"
+
+# Mensajes de los comandos. Placeholders: {categoria} en todos, {distancia} en not-found.
+spawned: "&aHolograma de {categoria} spawneado."
+despawned: "&aHolograma de {categoria} eliminado."
+not-found: "&cNo hay ningun holograma de {categoria} a menos de {distancia} bloques."
+reloaded: "&aconfig.yml recargado. &7El proveedor de economia y los intervalos de las tareas requieren reiniciar el servidor para aplicarse."

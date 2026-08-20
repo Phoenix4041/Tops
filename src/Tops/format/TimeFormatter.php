@@ -12,9 +12,15 @@ final class TimeFormatter {
 	private function __construct() {
 	}
 
-	public static function format(int $totalSeconds): string {
+	public static function format(
+		int $totalSeconds,
+		string $daySuffix = "d",
+		string $hourSuffix = "h",
+		string $minuteSuffix = "m",
+		string $secondSuffix = "s"
+	): string {
 		if ($totalSeconds < self::SECONDS_PER_MINUTE) {
-			return $totalSeconds . "s";
+			return $totalSeconds . $secondSuffix;
 		}
 
 		$days = intdiv($totalSeconds, self::SECONDS_PER_DAY);
@@ -23,13 +29,13 @@ final class TimeFormatter {
 
 		$parts = [];
 		if ($days > 0) {
-			$parts[] = $days . "d";
+			$parts[] = $days . $daySuffix;
 		}
 		if ($hours > 0) {
-			$parts[] = $hours . "h";
+			$parts[] = $hours . $hourSuffix;
 		}
 		if ($minutes > 0 || $parts === []) {
-			$parts[] = $minutes . "m";
+			$parts[] = $minutes . $minuteSuffix;
 		}
 
 		return implode(" ", $parts);

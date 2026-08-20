@@ -1,4 +1,5 @@
 # Tops - configuracion
+# Los textos y colores viven en messages.yml
 
 persistence:
   # Archivo SQLite dentro de la carpeta de datos del plugin
@@ -21,5 +22,13 @@ hologram:
   # Cada cuantos ticks se guarda el tiempo jugado acumulado como respaldo (ademas de guardarse al salir)
   playtime-flush-interval-ticks: 6000
 
-messages:
-  prefix: "§8[§bTops§8] §r"
+  money:
+    # Decimales mostrados en el top de Dinero
+    decimals: 2
+
+  playtime:
+    # Sufijos usados al formatear el tiempo jugado (dias/horas/minutos/segundos)
+    day-suffix: "d"
+    hour-suffix: "h"
+    minute-suffix: "m"
+    second-suffix: "s"

@@ -4,9 +4,29 @@ declare(strict_types=1);
 
 namespace Tops;
 
+use pocketmine\utils\TextFormat;
+
 final class TopsConfig {
 	private const VALID_PROVIDERS = ["none", "bedrockeconomy", "economyapi"];
 
+	private const DEFAULT_TITLES = [
+		"kills" => "&l&6Kills",
+		"deaths" => "&l&cMuertes",
+		"dinero" => "&l&aDinero",
+		"tiempo" => "&l&bTiempo Jugado",
+	];
+
+	private const DEFAULT_MESSAGES = [
+		"spawned" => "&aHolograma de {categoria} spawneado.",
+		"despawned" => "&aHolograma de {categoria} eliminado.",
+		"not-found" => "&cNo hay ningun holograma de {categoria} a menos de {distancia} bloques.",
+		"reloaded" => "&aconfig.yml recargado.",
+	];
+
+	/**
+	 * @param array<string, string> $categoryTitles category value => colorized title
+	 * @param array<string, string> $messages key => colorized template (prefix not yet applied)
+	 */
 	private function __construct(
 		public readonly string $databaseFileName,
 		public readonly string $economyProvider,
@@ -15,18 +35,30 @@ final class TopsConfig {
 		public readonly int $moneySyncIntervalTicks,
 		public readonly int $moneySyncBatchSize,
 		public readonly int $playtimeFlushIntervalTicks,
-		public readonly string $messagePrefix
+		public readonly int $moneyDecimals,
+		public readonly string $playtimeDaySuffix,
+		public readonly string $playtimeHourSuffix,
+		public readonly string $playtimeMinuteSuffix,
+		public readonly string $playtimeSecondSuffix,
+		public readonly string $noDataMessage,
+		public readonly string $lineFormat,
+		public readonly array $categoryTitles,
+		private readonly string $messagePrefix,
+		private readonly array $messages
 	) {
 	}
 
 	/**
-	 * @param array<int|string, mixed> $raw
+	 * @param array<int|string, mixed> $config config.yml contents
+	 * @param array<int|string, mixed> $messages messages.yml contents
 	 */
-	public static function fromArray(array $raw): self {
-		$persistence = self::section($raw, "persistence");
-		$economy = self::section($raw, "economy");
-		$hologram = self::section($raw, "hologram");
-		$messages = self::section($raw, "messages");
+	public static function fromArray(array $config, array $messages): self {
+		$persistence = self::section($config, "persistence");
+		$economy = self::section($config, "economy");
+		$hologram = self::section($config, "hologram");
+		$money = self::section($hologram, "money");
+		$playtime = self::section($hologram, "playtime");
+		$titles = self::stringMap(self::section($messages, "titles"), self::DEFAULT_TITLES);
 
 		$provider = strtolower(self::toStringOrDefault($economy["provider"] ?? null, "none"));
 		if (!in_array($provider, self::VALID_PROVIDERS, true)) {
@@ -41,8 +73,38 @@ final class TopsConfig {
 			moneySyncIntervalTicks: self::clampInt($hologram["money-sync-interval-ticks"] ?? null, 200, 20, 12000),
 			moneySyncBatchSize: self::clampInt($hologram["money-sync-batch-size"] ?? null, 20, 1, 500),
 			playtimeFlushIntervalTicks: self::clampInt($hologram["playtime-flush-interval-ticks"] ?? null, 6000, 1200, 72000),
-			messagePrefix: self::toStringOrDefault($messages["prefix"] ?? null, "§8[§bTops§8] §r"),
+			moneyDecimals: self::clampInt($money["decimals"] ?? null, 2, 0, 8),
+			playtimeDaySuffix: self::toStringOrDefault($playtime["day-suffix"] ?? null, "d"),
+			playtimeHourSuffix: self::toStringOrDefault($playtime["hour-suffix"] ?? null, "h"),
+			playtimeMinuteSuffix: self::toStringOrDefault($playtime["minute-suffix"] ?? null, "m"),
+			playtimeSecondSuffix: self::toStringOrDefault($playtime["second-suffix"] ?? null, "s"),
+			noDataMessage: TextFormat::colorize(self::toStringOrDefault($messages["no-data-message"] ?? null, "&7Sin datos todavia")),
+			lineFormat: TextFormat::colorize(self::toStringOrDefault($messages["line-format"] ?? null, "&7#{pos} &f{name} &e{value}")),
+			categoryTitles: array_map(TextFormat::colorize(...), $titles),
+			messagePrefix: TextFormat::colorize(self::toStringOrDefault($messages["prefix"] ?? null, "&8[&bTops&8] &r")),
+			messages: array_map(TextFormat::colorize(...), self::stringMap($messages, self::DEFAULT_MESSAGES)),
 		);
+	}
+
+	public function categoryTitle(TopCategory $category): string {
+		return $this->categoryTitles[$category->value] ?? $category->value;
+	}
+
+	public function formatLine(int $pos, string $name, string $value): string {
+		return str_replace(["{pos}", "{name}", "{value}"], [(string) $pos, $name, $value], $this->lineFormat);
+	}
+
+	/**
+	 * @param array<string, string> $placeholders
+	 */
+	public function message(string $key, array $placeholders = []): string {
+		$template = $this->messages[$key] ?? "";
+		$text = $this->messagePrefix . $template;
+		foreach ($placeholders as $name => $value) {
+			$text = str_replace("{" . $name . "}", $value, $text);
+		}
+
+		return $text;
 	}
 
 	/**
@@ -53,6 +115,22 @@ final class TopsConfig {
 		$value = $raw[$key] ?? [];
 
 		return is_array($value) ? $value : [];
+	}
+
+	/**
+	 * @param array<int|string, mixed> $raw
+	 * @param array<string, string> $defaults
+	 * @return array<string, string>
+	 */
+	private static function stringMap(array $raw, array $defaults): array {
+		$result = $defaults;
+		foreach ($defaults as $key => $default) {
+			if (isset($raw[$key]) && is_scalar($raw[$key])) {
+				$result[$key] = (string) $raw[$key];
+			}
+		}
+
+		return $result;
 	}
 
 	private static function toStringOrDefault(mixed $value, string $default): string {

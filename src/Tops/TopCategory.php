@@ -18,13 +18,4 @@ enum TopCategory: string {
 			self::PLAYTIME => "playtime_seconds",
 		};
 	}
-
-	public function displayName(): string {
-		return match ($this) {
-			self::KILLS => "§lKills",
-			self::DEATHS => "§lMuertes",
-			self::MONEY => "§lDinero",
-			self::PLAYTIME => "§lTiempo Jugado",
-		};
-	}
 }

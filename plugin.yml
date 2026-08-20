@@ -1,5 +1,5 @@
 name: Tops
-version: 1.0.0
+version: 1.1.0
 main: Tops\Loader
 api: ["5.0.0"]
 authors:

@@ -1,18 +1,26 @@
 # Changelog
 
-Todas las versiones notables de Tops se documentan aqui.
+All notable changes to Tops are documented here.
+
+## [1.1.0] - 2026-08-20
+
+### Added
+- Fully configurable hologram design: per-category title/color, per-line format, "no data" message, Money top decimals, and playtime suffixes.
+- Configurable command messages (`spawned`, `despawned`, `not-found`, `reloaded`) with placeholders.
+- All text and colors moved out of `config.yml` into a dedicated `messages.yml`, hot-reloadable with `/tops reload`.
+- Colors use `&` instead of `§` in config, resolved once per refresh cycle (no extra TPS cost).
 
 ## [1.0.0] - 2026-08-20
 
 ### Added
-- Top de Kills, Deaths, Dinero y Tiempo jugado, cada uno con su propio holograma.
-- Persistencia SQLite 100% asincrona (`AsyncTask` para init de schema, incrementos, set de dinero y fetch de tops).
-- Soporte de economia via libPiggyEconomy, con BedrockEconomy y EconomyAPI como proveedores seleccionables por config.
-- Comandos `/tops spawn <categoria>`, `/tops despawn <categoria>` y `/tops reload`, construidos con Commando.
-- Sync de dinero por lotes para jugadores conectados, evitando picos de lag con plugins de economia sincronos.
-- Flush periodico de tiempo jugado como respaldo ante caidas del servidor.
+- Kills, Deaths, Money and Playtime tops, each with its own hologram.
+- 100% asynchronous SQLite persistence (`AsyncTask` for schema init, increments, money sync and top fetches).
+- Economy support via libPiggyEconomy, with BedrockEconomy and EconomyAPI selectable through config.
+- `/tops spawn <category>`, `/tops despawn <category>` and `/tops reload` commands, built with Commando.
+- Batched money sync for online players, avoiding lag spikes with synchronous economy plugins.
+- Periodic playtime flush as a safety net against unclean server shutdowns.
 
 ### Technical
-- PHPStan nivel 8 y nivel 9 sin errores.
-- `strict_types=1` en todo el codigo.
-- Script de build (`build/build.php`) que fusiona los virions (Commando, libPiggyEconomy) y compila el `.phar` con DevTools.
+- PHPStan level 8 and level 9 clean.
+- `strict_types=1` across the codebase.
+- Build script (`build/build.php`) that merges the virions (Commando, libPiggyEconomy) and compiles the `.phar` with DevTools.

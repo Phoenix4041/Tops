@@ -24,8 +24,8 @@ final class TopsCommand extends BaseCommand {
 	}
 
 	protected function prepare(): void {
-		$this->registerSubCommand(new SpawnSubCommand());
-		$this->registerSubCommand(new DespawnSubCommand($this->registry));
+		$this->registerSubCommand(new SpawnSubCommand($this->loaderRef));
+		$this->registerSubCommand(new DespawnSubCommand($this->registry, $this->loaderRef));
 		$this->registerSubCommand(new ReloadSubCommand($this->loaderRef));
 	}
 

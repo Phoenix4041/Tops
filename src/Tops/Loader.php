@@ -13,6 +13,7 @@ use pocketmine\entity\EntityFactory;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\plugin\PluginBase;
 use pocketmine\scheduler\TaskHandler;
+use pocketmine\utils\Config;
 use pocketmine\world\World;
 use Tops\command\TopsCommand;
 use Tops\entity\TopsHologram;
@@ -28,6 +29,7 @@ final class Loader extends PluginBase {
 	private static ?Loader $instance = null;
 
 	private TopsConfig $config;
+	private Config $messagesFile;
 	private StatsRepository $repository;
 	private HologramRegistry $hologramRegistry;
 	private PlaytimeTracker $playtimeTracker;
@@ -49,7 +51,9 @@ final class Loader extends PluginBase {
 		self::$instance = $this;
 
 		$this->saveDefaultConfig();
-		$this->config = TopsConfig::fromArray($this->getConfig()->getAll());
+		$this->saveResource("messages.yml");
+		$this->messagesFile = new Config($this->getDataFolder() . "messages.yml", Config::YAML);
+		$this->config = TopsConfig::fromArray($this->getConfig()->getAll(), $this->messagesFile->getAll());
 
 		$this->repository = new StatsRepository($this->getDataFolder() . $this->config->databaseFileName);
 		$this->repository->initSchema();
@@ -107,9 +111,14 @@ final class Loader extends PluginBase {
 		self::$instance = null;
 	}
 
+	public function getTopsConfig(): TopsConfig {
+		return $this->config;
+	}
+
 	public function reloadPluginConfig(): void {
 		$this->reloadConfig();
-		$this->config = TopsConfig::fromArray($this->getConfig()->getAll());
+		$this->messagesFile->reload();
+		$this->config = TopsConfig::fromArray($this->getConfig()->getAll(), $this->messagesFile->getAll());
 	}
 
 	/**
@@ -129,14 +138,15 @@ final class Loader extends PluginBase {
 	 * @param list<array{name: string, value: int|float}> $rows
 	 */
 	private function formatTopText(TopCategory $category, array $rows): string {
+		$title = $this->config->categoryTitle($category);
 		if ($rows === []) {
-			return $category->displayName() . "\n§7Sin datos todavia";
+			return $title . "\n" . $this->config->noDataMessage;
 		}
 
-		$lines = [$category->displayName()];
+		$lines = [$title];
 		$place = 1;
 		foreach ($rows as $row) {
-			$lines[] = "§7#{$place} §f{$row['name']} §e" . $this->formatValue($category, $row["value"]);
+			$lines[] = $this->config->formatLine($place, $row["name"], $this->formatValue($category, $row["value"]));
 			++$place;
 		}
 
@@ -145,8 +155,14 @@ final class Loader extends PluginBase {
 
 	private function formatValue(TopCategory $category, int|float $value): string {
 		return match ($category) {
-			TopCategory::MONEY => number_format((float) $value, 2),
-			TopCategory::PLAYTIME => TimeFormatter::format((int) $value),
+			TopCategory::MONEY => number_format((float) $value, $this->config->moneyDecimals),
+			TopCategory::PLAYTIME => TimeFormatter::format(
+				(int) $value,
+				$this->config->playtimeDaySuffix,
+				$this->config->playtimeHourSuffix,
+				$this->config->playtimeMinuteSuffix,
+				$this->config->playtimeSecondSuffix
+			),
 			default => (string) (int) $value,
 		};
 	}

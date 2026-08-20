@@ -11,12 +11,15 @@ use pocketmine\entity\Location;
 use pocketmine\player\Player;
 use Tops\command\argument\CategoryArgument;
 use Tops\entity\TopsHologram;
+use Tops\Loader;
 use Tops\Permissions;
 use Tops\TopCategory;
 
 final class SpawnSubCommand extends BaseSubCommand {
 
-	public function __construct() {
+	public function __construct(
+		private readonly Loader $loader
+	) {
 		parent::__construct("spawn", "Spawnea un holograma de top en tu posicion");
 	}
 
@@ -48,6 +51,7 @@ final class SpawnSubCommand extends BaseSubCommand {
 		$entity->setCategory($category);
 		$entity->spawnToAll();
 
-		$sender->sendMessage("§aHolograma de " . $category->displayName() . "§a spawneado.");
+		$config = $this->loader->getTopsConfig();
+		$sender->sendMessage($config->message("spawned", ["categoria" => $config->categoryTitle($category)]));
 	}
 }

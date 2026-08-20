@@ -57,7 +57,7 @@ $cmd = implode(' ', [
 	escapeshellarg(PHP_BINARY),
 	'-dphar.readonly=0',
 	escapeshellarg($consoleScript),
-	'--make', escapeshellarg('src,stub.php,plugin.yml,config.yml'),
+	'--make', escapeshellarg('src,resources,stub.php,plugin.yml,config.yml'),
 	'--relative', escapeshellarg($root),
 	'--out', escapeshellarg($outPhar),
 ]);

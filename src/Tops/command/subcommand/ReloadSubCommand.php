@@ -26,8 +26,6 @@ final class ReloadSubCommand extends BaseSubCommand {
 	 */
 	public function onRun(CommandSender $sender, string $aliasUsed, array $args): void {
 		$this->loader->reloadPluginConfig();
-		$sender->sendMessage(
-			"§aconfig.yml recargado. §7El proveedor de economia y los intervalos de las tareas requieren reiniciar el servidor para aplicarse."
-		);
+		$sender->sendMessage($this->loader->getTopsConfig()->message("reloaded"));
 	}
 }

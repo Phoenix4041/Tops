@@ -33,7 +33,7 @@ final class TopsHologram extends Entity {
 		$this->setNameTagAlwaysVisible(true);
 		$this->setScale(0.01);
 		$this->setCanSaveWithChunk(true);
-		$this->setNameTag($this->category->displayName() . "\n§7Cargando...");
+		$this->setNameTag("§7Cargando...");
 	}
 
 	public function saveNBT(): CompoundTag {

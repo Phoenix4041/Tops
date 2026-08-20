@@ -34,9 +34,15 @@
 
 ## Configuration
 
-* `config.yml` - intervalos de actualizacion, tamano de cada top, proveedor de economia y prefijo de mensajes.
+* `config.yml` - comportamiento: intervalos de actualizacion, tamano de cada top, proveedor de economia, decimales del top de Dinero, sufijos del tiempo jugado.
+* `messages.yml` - todo lo visual y de texto, sin tocar codigo:
+  * `titles` - titulo/color de cada categoria (`&` para colores).
+  * `line-format` - formato de cada fila (`{pos}`, `{name}`, `{value}`).
+  * `no-data-message` - texto cuando una categoria aun no tiene datos.
+  * `prefix` - prefijo de todos los mensajes de comandos.
+  * `spawned` / `despawned` / `not-found` / `reloaded` - mensajes de los comandos, con placeholders `{categoria}`/`{distancia}`.
 
-Cambiar `economy.provider` o cualquier `*-interval-ticks` requiere reiniciar el servidor. El resto de valores se puede recargar en caliente con `/tops reload`.
+Cambiar `economy.provider` o cualquier `*-interval-ticks` en `config.yml` requiere reiniciar el servidor. Todo `messages.yml` (colores, textos, formato de las filas) se recarga en caliente con `/tops reload`.
 
 ---
 
@@ -164,6 +170,10 @@ This project is licensed under the Private License - see [LICENSE](LICENSE) file
 
 ## Updates & Improvements
 
+### v1.1.0 (2026-08-20)
+* Diseno de los hologramas 100% configurable (titulos, colores, formato de fila, mensaje sin datos, decimales, sufijos de tiempo).
+* Mensajes de los comandos configurables con placeholders.
+
 ### v1.0.0 - Initial Release (2026-08-20)
 
 **Core Features:**
@@ -190,7 +200,8 @@ This project is licensed under the Private License - see [LICENSE](LICENSE) file
 
 | Version | Release Date | Status | Support |
 |---------|-------------|--------|---------|
-| 1.0.0 | 2026-08-20 | 🟢 Active | Full support |
+| 1.1.0 | 2026-08-20 | 🟢 Active | Full support |
+| 1.0.0 | 2026-08-20 | ⚪ Superseded | - |
 
 ---
 

@@ -10,6 +10,7 @@ use pocketmine\command\CommandSender;
 use pocketmine\player\Player;
 use Tops\command\argument\CategoryArgument;
 use Tops\hologram\HologramRegistry;
+use Tops\Loader;
 use Tops\Permissions;
 use Tops\TopCategory;
 
@@ -17,7 +18,8 @@ final class DespawnSubCommand extends BaseSubCommand {
 	private const MAX_DISTANCE = 10.0;
 
 	public function __construct(
-		private readonly HologramRegistry $registry
+		private readonly HologramRegistry $registry,
+		private readonly Loader $loader
 	) {
 		parent::__construct("despawn", "Elimina el holograma de top mas cercano a ti");
 	}
@@ -37,16 +39,20 @@ final class DespawnSubCommand extends BaseSubCommand {
 		}
 		/** @var TopCategory $category */
 		$category = $args["categoria"];
+		$config = $this->loader->getTopsConfig();
 
 		$nearest = $this->registry->findNearest($category, $sender->getWorld(), $sender->getPosition(), self::MAX_DISTANCE);
 		if ($nearest === null) {
-			$sender->sendMessage("§cNo hay ningun holograma de " . $category->displayName() . "§c a menos de " . (int) self::MAX_DISTANCE . " bloques.");
+			$sender->sendMessage($config->message("not-found", [
+				"categoria" => $config->categoryTitle($category),
+				"distancia" => (string) (int) self::MAX_DISTANCE,
+			]));
 
 			return;
 		}
 
 		$this->registry->remove($nearest);
 		$nearest->flagForDespawn();
-		$sender->sendMessage("§aHolograma de " . $category->displayName() . "§a eliminado.");
+		$sender->sendMessage($config->message("despawned", ["categoria" => $config->categoryTitle($category)]));
 	}
 }
