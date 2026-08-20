@@ -11,11 +11,6 @@ softdepend:
   - BedrockEconomy
   - EconomyAPI
 
-commands:
-  tops:
-    description: Gestiona los hologramas de tops del servidor
-    usage: /tops <spawn|despawn|reload>
-
 permissions:
   tops.command.spawn:
     description: Permite spawnear un holograma de top
