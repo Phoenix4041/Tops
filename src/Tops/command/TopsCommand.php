@@ -12,6 +12,7 @@ use Tops\command\subcommand\ReloadSubCommand;
 use Tops\command\subcommand\SpawnSubCommand;
 use Tops\hologram\HologramRegistry;
 use Tops\Loader;
+use Tops\Permissions;
 
 final class TopsCommand extends BaseCommand {
 
@@ -24,6 +25,7 @@ final class TopsCommand extends BaseCommand {
 	}
 
 	protected function prepare(): void {
+		$this->setPermission(Permissions::BASE);
 		$this->registerSubCommand(new SpawnSubCommand($this->loaderRef));
 		$this->registerSubCommand(new DespawnSubCommand($this->registry, $this->loaderRef));
 		$this->registerSubCommand(new ReloadSubCommand($this->loaderRef));

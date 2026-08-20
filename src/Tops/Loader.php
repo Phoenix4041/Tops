@@ -36,10 +36,10 @@ final class Loader extends PluginBase {
 	private ?EconomyProvider $economyProvider = null;
 	private ?MoneySyncTask $moneySyncTask = null;
 
-	/** @var TaskHandler<TopsRefreshTask> */
-	private TaskHandler $refreshHandler;
-	/** @var TaskHandler<PlaytimeFlushTask> */
-	private TaskHandler $playtimeFlushHandler;
+	/** @var TaskHandler<TopsRefreshTask>|null */
+	private ?TaskHandler $refreshHandler = null;
+	/** @var TaskHandler<PlaytimeFlushTask>|null */
+	private ?TaskHandler $playtimeFlushHandler = null;
 	/** @var TaskHandler<MoneySyncTask>|null */
 	private ?TaskHandler $moneySyncHandler = null;
 
@@ -100,12 +100,14 @@ final class Loader extends PluginBase {
 	}
 
 	protected function onDisable(): void {
-		foreach ($this->playtimeTracker->flushAndRebase() as $nameLower => $seconds) {
-			$this->repository->addPlaytime($nameLower, $seconds);
+		if (isset($this->playtimeTracker, $this->repository)) {
+			foreach ($this->playtimeTracker->flushAndRebase() as $nameLower => $seconds) {
+				$this->repository->addPlaytime($nameLower, $seconds);
+			}
 		}
 
-		$this->refreshHandler->cancel();
-		$this->playtimeFlushHandler->cancel();
+		$this->refreshHandler?->cancel();
+		$this->playtimeFlushHandler?->cancel();
 		$this->moneySyncHandler?->cancel();
 
 		self::$instance = null;

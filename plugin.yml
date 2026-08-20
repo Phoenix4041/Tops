@@ -12,6 +12,9 @@ softdepend:
   - EconomyAPI
 
 permissions:
+  tops.command:
+    description: Permite ver el uso del comando /tops
+    default: true
   tops.command.spawn:
     description: Permite spawnear un holograma de top
     default: op
