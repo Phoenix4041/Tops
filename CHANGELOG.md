@@ -2,6 +2,16 @@
 
 All notable changes to Tops are documented here.
 
+## [1.1.1] - 2026-08-20
+
+### Fixed
+- `config.yml` was bundled at the plugin root instead of `resources/`, so `saveDefaultConfig()` (which reads from `resources/`) never actually created it in the data folder. Moved next to `messages.yml`.
+- All SQLite `AsyncTask`s are now pinned to a single fixed `AsyncPool` worker instead of round-robining across the pool. SQLite3 handles are not guaranteed safe to use concurrently from multiple OS threads, and that was crashing an async worker mid-session, silently breaking every top refresh and any pending write after it.
+- `TopsCommand` never had a permission set on the underlying `Command` object; PM5's `SimpleCommandMap::register()` now hard-requires one, which crashed plugin enable. Added a `tops.command` base permission (default `true`; the real gating stays on each subcommand).
+
+### Added
+- Commando's `PacketHooker` is now registered, so `/tops <Tab>` shows native subcommand/argument autocompletion in the Bedrock client, via `muqsit/simple-packet-handler` (added as a VCS composer dependency since it isn't on Packagist).
+
 ## [1.1.0] - 2026-08-20
 
 ### Added

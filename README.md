@@ -1,17 +1,17 @@
 # Tops
 
-### Leaderboards de Kills, Deaths, Dinero y Tiempo jugado con hologramas por categoria
+### Kills, Deaths, Money and Playtime leaderboards with per-category holograms
 
 ---
 
 ## Features
 
-* **4 categorias de top**: Kills, Deaths, Dinero y Tiempo jugado, cada una con su propio holograma independiente.
-* **Floating text real para PM5**: hologramas hechos con una entidad invisible y sin gravedad (`FloatingTextParticle` ya no existe en PocketMine-MP 5.x), con texto multilinea en un solo nametag.
-* **Persistencia en SQLite**: toda la lectura/escritura corre en `AsyncTask`, nunca bloquea el hilo principal. Los tops se calculan con consultas `ORDER BY ... LIMIT` indexadas.
-* **Economia plug-and-play**: soporta BedrockEconomy y EconomyAPI mediante [libPiggyEconomy](https://github.com/DaPigGuy/libPiggyEconomy), seleccionable por config sin tocar codigo.
-* **Comandos con Commando**: `/tops spawn|despawn|reload` construidos sobre el framework [Commando](https://github.com/CortexPE/Commando), con validacion de argumentos y permisos por subcomando.
-* **Cero impacto en TPS**: sin tasks por entidad, sin lookups O(n) de jugadores, sin I/O en el hilo principal, y hologramas que solo se actualizan cuando el texto realmente cambio.
+* **4 top categories**: Kills, Deaths, Money and Playtime, each with its own independent hologram.
+* **Real PM5 floating text**: hologram made of an invisible, gravity-less entity (`FloatingTextParticle` no longer exists in PocketMine-MP 5.x), with multi-line text in a single nameTag.
+* **SQLite persistence**: every read/write runs in an `AsyncTask`, never blocks the main thread. Tops are computed with indexed `ORDER BY ... LIMIT` queries. All queries are pinned to a single `AsyncPool` worker (SQLite3 isn't safe across concurrent OS threads).
+* **Plug-and-play economy**: supports BedrockEconomy and EconomyAPI through [libPiggyEconomy](https://github.com/DaPigGuy/libPiggyEconomy), selectable via config with no code changes.
+* **Commands with Commando**: `/tops spawn|despawn|reload` built on the [Commando](https://github.com/CortexPE/Commando) framework, with argument validation, per-subcommand permissions and native Tab-autocomplete on Bedrock clients.
+* **Zero TPS impact**: no per-entity tasks, no O(n) player lookups, no I/O on the main thread, and holograms that only update when their text actually changed.
 
 ---
 
@@ -19,39 +19,40 @@
 
 * PocketMine-MP 5.0+
 * PHP 8.1+
-* Opcional: BedrockEconomy o EconomyAPI, si quieres el top de Dinero activo
+* Optional: BedrockEconomy or EconomyAPI if you want the Money top active
 
 ---
 
 ## Installation
 
-1. Descarga `Tops.phar` desde `build/Tops.phar` (o compilalo tu mismo, ver mas abajo).
-2. Colocalo en la carpeta `plugins/` de tu servidor.
-3. Reinicia el servidor. Se generara `config.yml` en `plugins/Tops/`.
-4. Si quieres el top de Dinero, instala BedrockEconomy o EconomyAPI y configura `economy.provider` en `config.yml`.
+1. Download `Tops.phar` from `build/Tops.phar` (or build it yourself, see below).
+2. Drop it into your server's `plugins/` folder.
+3. Restart the server. `config.yml` and `messages.yml` will be generated in `plugins/Tops/`.
+4. If you want the Money top, install BedrockEconomy or EconomyAPI and set `economy.provider` in `config.yml`.
 
 ---
 
 ## Configuration
 
-* `config.yml` - comportamiento: intervalos de actualizacion, tamano de cada top, proveedor de economia, decimales del top de Dinero, sufijos del tiempo jugado.
-* `messages.yml` - todo lo visual y de texto, sin tocar codigo:
-  * `titles` - titulo/color de cada categoria (`&` para colores).
-  * `line-format` - formato de cada fila (`{pos}`, `{name}`, `{value}`).
-  * `no-data-message` - texto cuando una categoria aun no tiene datos.
-  * `prefix` - prefijo de todos los mensajes de comandos.
-  * `spawned` / `despawned` / `not-found` / `reloaded` - mensajes de los comandos, con placeholders `{categoria}`/`{distancia}`.
+* `config.yml` - behavior: refresh intervals, top size, economy provider, Money decimals, playtime suffixes.
+* `messages.yml` - everything visual and text-related, no code changes needed:
+  * `titles` - title/color for each category (`&` for colors).
+  * `line-format` - format of each row (`{pos}`, `{name}`, `{value}`).
+  * `no-data-message` - text shown while a category has no data yet.
+  * `prefix` - prefix for every command message.
+  * `spawned` / `despawned` / `not-found` / `reloaded` - command messages, with `{categoria}`/`{distancia}` placeholders.
 
-Cambiar `economy.provider` o cualquier `*-interval-ticks` en `config.yml` requiere reiniciar el servidor. Todo `messages.yml` (colores, textos, formato de las filas) se recarga en caliente con `/tops reload`.
+Changing `economy.provider` or any `*-interval-ticks` in `config.yml` requires a server restart. All of `messages.yml` (colors, text, row format) hot-reloads with `/tops reload`.
 
 ---
 
 ## Permissions
 
 ```yaml
-tops.command.spawn      # Permite spawnear un holograma de top (default: op)
-tops.command.despawn    # Permite eliminar un holograma de top (default: op)
-tops.command.reload     # Permite recargar config.yml (default: op)
+tops.command            # Base permission to see the command exists (default: true)
+tops.command.spawn      # Spawn a top hologram (default: op)
+tops.command.despawn    # Remove a top hologram (default: op)
+tops.command.reload     # Reload config.yml / messages.yml (default: op)
 ```
 
 ---
@@ -62,30 +63,30 @@ tops.command.reload     # Permite recargar config.yml (default: op)
 
 ```bash
 /tops spawn <categoria>     # categoria: kills | deaths | dinero | tiempo
-/tops despawn <categoria>   # elimina el holograma de esa categoria mas cercano (10 bloques)
-/tops reload                # recarga config.yml
+/tops despawn <categoria>   # removes the nearest hologram of that category (10 blocks)
+/tops reload                # reloads config.yml and messages.yml
 ```
 
 **Aliases**: None
 
 ### How It Works
 
-**Spawnear un top**:
-1. Parate donde quieres el holograma.
-2. Ejecuta `/tops spawn kills` (o `deaths`, `dinero`, `tiempo`).
-3. El holograma aparece 2 bloques sobre tu posicion, mirando hacia donde miras.
+**Spawning a top**:
+1. Stand where you want the hologram.
+2. Run `/tops spawn kills` (or `deaths`, `dinero`, `tiempo`).
+3. The hologram appears 2 blocks above your position, facing the direction you're looking.
 
-**Actualizacion**:
-1. Una tarea global recalcula los 4 tops cada `refresh-interval-ticks` (5s por defecto) via `AsyncTask`.
-2. Cada holograma existente de esa categoria actualiza su texto solo si cambio.
+**Updating**:
+1. A single global task recomputes all 4 tops every `refresh-interval-ticks` (5s by default) via `AsyncTask`.
+2. Every existing hologram of that category updates its text only if it changed.
 
 ---
 
 ## Data Tracking
 
-* **Kills / Deaths**: se registran en `PlayerDeathEvent`. Toda muerte cuenta como Death; si el causante fue otro jugador, tambien cuenta como Kill suyo.
-* **Tiempo jugado**: se mide por sesion (join → quit) y se persiste al salir, con un respaldo periodico (`playtime-flush-interval-ticks`) por si el servidor se cae sin apagarse limpio.
-* **Dinero**: se sincroniza desde el proveedor de economia elegido, solo para jugadores conectados (repartido en lotes para no golpear al plugin de economia de una sola vez), y se guarda en la misma tabla SQLite que el resto de stats.
+* **Kills / Deaths**: recorded on `PlayerDeathEvent`. Every death counts as a Death; if the killer was another player, it also counts as their Kill.
+* **Playtime**: measured per session (join → quit) and persisted on quit, with a periodic backup flush (`playtime-flush-interval-ticks`) in case the server goes down uncleanly.
+* **Money**: synced from the selected economy provider, only for online players (batched so it doesn't hit the economy plugin all at once), and stored in the same SQLite table as the other stats.
 
 ---
 
@@ -93,18 +94,18 @@ tops.command.reload     # Permite recargar config.yml (default: op)
 
 ### Architecture
 
-* Un unico indice `HologramRegistry` (por `WeakReference`) resuelve que hologramas actualizar sin recorrer el mundo.
-* `PlaytimeTracker` deriva el tiempo jugado en memoria (join timestamp) en vez de incrementar un contador cada segundo.
-* Cada escritura a SQLite es un `UPSERT` atomico (`INSERT ... ON CONFLICT DO UPDATE`) — sin lecturas previas, sin locks manuales.
-* Solo 3 tareas globales en todo el plugin (refresco de tops, flush de tiempo jugado, sync de dinero); ninguna por jugador ni por entidad.
-* El sync de dinero se reparte en lotes (`money-sync-batch-size`) porque algunos plugins de economia resuelven el balance de forma sincrona.
+* A single `HologramRegistry` index (via `WeakReference`) resolves which holograms to update without walking the world.
+* `PlaytimeTracker` derives playtime in memory (join timestamp) instead of ticking a counter every second.
+* Every SQLite write is an atomic `UPSERT` (`INSERT ... ON CONFLICT DO UPDATE`) — no prior reads, no manual locks.
+* Only 3 global tasks in the whole plugin (top refresh, playtime flush, money sync); none per player or per entity.
+* Money sync is batched (`money-sync-batch-size`) because some economy plugins resolve balances synchronously.
 
 ### Benchmarks
 
-* **Escritura por muerte**: 1 `UPSERT` async, ~200 jugadores no generan mas de unas pocas escrituras por minuto.
-* **Recalculo de tops**: 4 `SELECT ... ORDER BY ... LIMIT` indexados sobre una tabla de <1000 filas, fuera del hilo principal.
-* **TPS Impact**: nulo en pruebas locales — cero I/O sincrono, cero busquedas O(n) de jugadores, cero tasks por entidad.
-* **Memory Overhead**: un `WeakReference` por holograma spawneado + un `int` por jugador conectado (sesion de tiempo jugado).
+* **Write per death**: 1 async `UPSERT`, ~200 players generate at most a handful of writes per minute.
+* **Top recompute**: 4 indexed `SELECT ... ORDER BY ... LIMIT` queries over a <1000-row table, off the main thread.
+* **TPS Impact**: none observed locally — zero synchronous I/O, zero O(n) player lookups, zero per-entity tasks.
+* **Memory Overhead**: one `WeakReference` per spawned hologram + one `int` per online player (playtime session).
 
 ---
 
@@ -120,37 +121,48 @@ src/Tops/
 ├── StatsRepository.php
 ├── PlaytimeTracker.php
 ├── Permissions.php
-├── async/           # AsyncTask por operacion (init, increment, set money, fetch tops)
-├── command/          # TopsCommand (Commando) + subcomandos + argumento de categoria
+├── async/           # one AsyncTask per operation (init, increment, set money, fetch tops)
+├── command/          # TopsCommand (Commando) + subcommands + category argument
 ├── entity/           # TopsHologram (floating text)
 ├── format/           # TimeFormatter
-├── hologram/         # HologramRegistry (indice O(1) por categoria)
-├── listener/         # actividad de jugador + auto-registro de hologramas
-└── task/             # las 3 tareas globales repetitivas
+├── hologram/         # HologramRegistry (O(1) index per category)
+├── listener/         # player activity + hologram auto-registration
+└── task/             # the 3 global repeating tasks
 ```
 
 ### Design Principles
-* **Single Responsibility**: cada clase resuelve un problema concreto (sin `Manager` que solo envuelve un array).
-* **Dependency Injection**: todo se inyecta por constructor; `Loader::getInstance()` solo se usa donde PM5 lo exige (callbacks de `AsyncTask::onCompletion()`).
-* **Type Safety**: `strict_types=1` en todo el codigo, PHPStan nivel 9 sin supresiones.
+* **Single Responsibility**: every class solves one concrete problem (no `Manager` that just wraps an array).
+* **Dependency Injection**: everything is constructor-injected; `Loader::getInstance()` is used only where PM5 requires it (`AsyncTask::onCompletion()` callbacks).
+* **Type Safety**: `strict_types=1` across the codebase, PHPStan level 9 with no suppressions.
 
 ---
 
 ## Troubleshooting
 
-### El top de Dinero siempre muestra 0
-* Revisa que `economy.provider` en `config.yml` coincida con el plugin instalado (`bedrockeconomy` o `economyapi`) y reinicia el servidor tras instalarlo.
+### The Money top always shows 0
+* Check that `economy.provider` in `config.yml` matches the installed plugin (`bedrockeconomy` or `economyapi`) and restart the server after installing it.
 
-### `/tops despawn` dice que no encuentra el holograma
-* Debes estar a menos de 10 bloques del holograma y en el mismo mundo.
+### `/tops despawn` says it can't find the hologram
+* You must be within 10 blocks of the hologram, in the same world.
 
 ---
 
 ## Contributing
 
-* **Code Quality**: sin managers vacios, sin arrays anidados sin tipar, early-returns en vez de anidacion.
-* **Performance**: cualquier cambio debe justificar su costo en TPS (ver jerarquia de rendimiento en el codigo).
-* **Type Safety**: PHPStan nivel 9 debe seguir pasando sin nuevas supresiones.
+* **Code Quality**: no empty managers, no untyped nested arrays, early-returns over nesting.
+* **Performance**: any change must justify its TPS cost (see the performance hierarchy in the code).
+* **Type Safety**: PHPStan level 9 must keep passing with no new suppressions.
+
+---
+
+## Roadmap
+
+- [ ] MySQL support for multi-server networks (currently SQLite, built for a single server).
+- [ ] Weekly/monthly top with automatic counter reset.
+- [ ] PlaceholderAPI placeholders (show each category's #1 in scoreboard/tab).
+- [ ] Optional "summary" hologram with all 4 categories on one board.
+- [ ] Automatic rewards for each category's #1 (via a configurable command).
+- [ ] Support for libPiggyEconomy's XPProvider as an optional 5th category ("Experience").
 
 ---
 
@@ -162,37 +174,9 @@ This project is licensed under the Private License - see [LICENSE](LICENSE) file
 
 ## Testing
 
-* **PHPStan**: nivel 8 y nivel 9 verificados sin errores (`vendor/bin/phpstan analyse`).
-* **Sintaxis**: todos los archivos de `src/Tops` pasan `php -l`.
-* **Build**: `build/build.php` compila un `.phar` cargable end-to-end (verificado localmente).
-
----
-
-## Updates & Improvements
-
-### v1.1.0 (2026-08-20)
-* Diseno de los hologramas 100% configurable (titulos, colores, formato de fila, mensaje sin datos, decimales, sufijos de tiempo).
-* Mensajes de los comandos configurables con placeholders.
-
-### v1.0.0 - Initial Release (2026-08-20)
-
-**Core Features:**
-* Tops de Kills, Deaths, Dinero y Tiempo jugado con holograma independiente por categoria.
-* Persistencia SQLite 100% asincrona.
-* Soporte de economia via libPiggyEconomy (BedrockEconomy / EconomyAPI).
-* Comandos `/tops spawn|despawn|reload` con Commando.
-
-**Technical Highlights:**
-* PHPStan nivel 9 limpio.
-* Cero tasks por entidad/jugador, cero I/O en el hilo principal.
-
-### Posibles features futuras
-- [ ] Soporte MySQL para redes multi-servidor (hoy es SQLite, pensado para un solo servidor).
-- [ ] Top semanal/mensual con reinicio automatico de contadores.
-- [ ] Placeholders para PlaceholderAPI (mostrar el top #1 de cada categoria en scoreboard/tab).
-- [ ] Holograma "resumen" opcional con las 4 categorias en un solo cartel.
-- [ ] Recompensas automaticas para el top 1 de cada categoria (via comando configurable).
-- [ ] Soporte para XPProvider de libPiggyEconomy como quinta categoria opcional ("Experiencia").
+* **PHPStan**: level 8 and level 9 verified with no errors (`vendor/bin/phpstan analyse`).
+* **Syntax**: every file in `src/Tops` passes `php -l`.
+* **Build**: `build/build.php` compiles an end-to-end loadable `.phar` (verified locally).
 
 ---
 
@@ -200,8 +184,9 @@ This project is licensed under the Private License - see [LICENSE](LICENSE) file
 
 | Version | Release Date | Status | Support |
 |---------|-------------|--------|---------|
-| 1.1.0 | 2026-08-20 | 🟢 Active | Full support |
-| 1.0.0 | 2026-08-20 | ⚪ Superseded | - |
+| 1.1.1 | 2026-08-20 | 🟢 Active | Full support |
+
+See [CHANGELOG.md](CHANGELOG.md) for the full version history.
 
 ---
 

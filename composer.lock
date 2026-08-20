@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "87d3e059706915a8e987775485cbe9d2",
+    "content-hash": "91fdbf67a3b295f80693026359f73b54",
     "packages": [
         {
             "name": "adhocore/json-comment",
@@ -202,6 +202,52 @@
                 "source": "https://github.com/DaPigGuy/libPiggyEconomy/tree/3.0.3"
             },
             "time": "2024-03-08T03:47:33+00:00"
+        },
+        {
+            "name": "muqsit/simple-packet-handler",
+            "version": "dev-pm5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Muqsit/SimplePacketHandler.git",
+                "reference": "4e7b399c61f2def3c088ecde96e15d1f9858914f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Muqsit/SimplePacketHandler/zipball/4e7b399c61f2def3c088ecde96e15d1f9858914f",
+                "reference": "4e7b399c61f2def3c088ecde96e15d1f9858914f",
+                "shasum": ""
+            },
+            "require": {
+                "pocketmine/pocketmine-mp": "^5.0.0"
+            },
+            "default-branch": true,
+            "type": "library",
+            "extra": {
+                "virion": {
+                    "spec": "3.0",
+                    "namespace-root": "muqsit\\simplepackethandler"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src"
+                ]
+            },
+            "license": [
+                "GPL-3.0"
+            ],
+            "authors": [
+                {
+                    "name": "Muqsit",
+                    "email": "hackhack05@gmail.com"
+                }
+            ],
+            "description": "Handle specific data packets (virion for PMMP API 4.0.0)",
+            "support": {
+                "source": "https://github.com/Muqsit/SimplePacketHandler/tree/0.1.6",
+                "issues": "https://github.com/Muqsit/SimplePacketHandler/issues"
+            },
+            "time": "2026-02-17T11:40:38+00:00"
         },
         {
             "name": "netresearch/jsonmapper",
@@ -1189,7 +1235,8 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "cortexpe/commando": 20
+        "cortexpe/commando": 20,
+        "muqsit/simple-packet-handler": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,

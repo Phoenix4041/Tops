@@ -1,6 +1,4 @@
 /vendor/
-/src/CortexPE/
-/src/DaPigGuy/
 /build/*.phar
 /data/
 *.sqlite

@@ -8,6 +8,7 @@ use DaPigGuy\libPiggyEconomy\exceptions\MissingProviderDependencyException;
 use DaPigGuy\libPiggyEconomy\exceptions\UnknownProviderException;
 use DaPigGuy\libPiggyEconomy\libPiggyEconomy;
 use DaPigGuy\libPiggyEconomy\providers\EconomyProvider;
+use CortexPE\Commando\PacketHooker;
 use pocketmine\entity\EntityDataHelper;
 use pocketmine\entity\EntityFactory;
 use pocketmine\nbt\tag\CompoundTag;
@@ -67,6 +68,10 @@ final class Loader extends PluginBase {
 			static fn(World $world, CompoundTag $nbt): TopsHologram => new TopsHologram(EntityDataHelper::parseLocation($nbt, $world), $nbt),
 			["tops:hologram"]
 		);
+
+		if (!PacketHooker::isRegistered()) {
+			PacketHooker::register($this);
+		}
 
 		$this->getServer()->getCommandMap()->register(
 			"tops",

@@ -4,12 +4,17 @@ declare(strict_types=1);
 
 $root = dirname(__DIR__);
 
-$vendorCommando = $root . '/vendor/cortexpe/commando/src/CortexPE';
-$vendorPiggy = $root . '/vendor/dapigguy/libpiggyeconomy/src/DaPigGuy';
+$virions = [
+	$root . '/vendor/cortexpe/commando/src/CortexPE' => $root . '/src/CortexPE',
+	$root . '/vendor/dapigguy/libpiggyeconomy/src/DaPigGuy' => $root . '/src/DaPigGuy',
+	$root . '/vendor/muqsit/simple-packet-handler/src/muqsit' => $root . '/src/muqsit',
+];
 
-if (!is_dir($vendorCommando) || !is_dir($vendorPiggy)) {
-	fwrite(STDERR, "Faltan dependencias de composer. Corre primero:\n  composer install --ignore-platform-reqs\n");
-	exit(1);
+foreach ($virions as $vendorPath => $_) {
+	if (!is_dir($vendorPath)) {
+		fwrite(STDERR, "Faltan dependencias de composer. Corre primero:\n  composer install --ignore-platform-reqs\n");
+		exit(1);
+	}
 }
 
 function tops_remove_directory(string $dir): void {
@@ -45,10 +50,11 @@ function tops_copy_directory(string $from, string $to): void {
 	}
 }
 
-// Merges the two virions' source into src/ so DevTools' single-src-tree phar builder finds them.
-echo "Fusionando Commando y libPiggyEconomy en src/...\n";
-tops_copy_directory($vendorCommando, $root . '/src/CortexPE');
-tops_copy_directory($vendorPiggy, $root . '/src/DaPigGuy');
+// Merges every virion's source into src/ so DevTools' single-src-tree phar builder finds them.
+echo "Fusionando virions en src/...\n";
+foreach ($virions as $vendorPath => $targetPath) {
+	tops_copy_directory($vendorPath, $targetPath);
+}
 
 $outPhar = $root . '/build/Tops.phar';
 $consoleScript = __DIR__ . '/tools/ConsoleScript.php';
@@ -57,7 +63,7 @@ $cmd = implode(' ', [
 	escapeshellarg(PHP_BINARY),
 	'-dphar.readonly=0',
 	escapeshellarg($consoleScript),
-	'--make', escapeshellarg('src,resources,stub.php,plugin.yml,config.yml'),
+	'--make', escapeshellarg('src,resources,stub.php,plugin.yml'),
 	'--relative', escapeshellarg($root),
 	'--out', escapeshellarg($outPhar),
 ]);
