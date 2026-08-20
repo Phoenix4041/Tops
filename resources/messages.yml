@@ -5,15 +5,34 @@ prefix: "&8[&bTops&8] &r"
 # Mensaje cuando todavia no hay datos para una categoria.
 no-data-message: "&7Sin datos todavia"
 
-# Formato de cada linea del top. Placeholders: {pos} {name} {value}
-line-format: "&7#{pos} &f{name} &e{value}"
-
-# Titulo (primera linea) de cada holograma.
-titles:
-  kills: "&l&6Kills"
-  deaths: "&l&cMuertes"
-  dinero: "&l&aDinero"
-  tiempo: "&l&bTiempo Jugado"
+# Diseno de cada holograma: titulo, formato de los puestos 1/2/3 (customizables cada uno)
+# y line-format para el resto (4 en adelante, todos comparten el mismo diseño).
+# Placeholders: {pos} {name} {value}
+categories:
+  kills:
+    title: "--- &6&lKILLS &r ---"
+    top1: "&e1. &l&6{name} &r&f{value}"
+    top2: "&e2. &l&6{name} &r&f{value}"
+    top3: "&e3. &l&6{name} &r&f{value}"
+    line-format: "&e{pos}. &l&6{name} &r&f{value}"
+  deaths:
+    title: "--- &c&lDEATHS &r ---"
+    top1: "&e1. &l&c{name} &r&f{value}"
+    top2: "&e2. &l&c{name} &r&f{value}"
+    top3: "&e3. &l&c{name} &r&f{value}"
+    line-format: "&e{pos}. &l&c{name} &r&f{value}"
+  dinero:
+    title: "--- &a&lDINERO &r ---"
+    top1: "&e1. &l&a{name} &r&f{value}"
+    top2: "&e2. &l&a{name} &r&f{value}"
+    top3: "&e3. &l&a{name} &r&f{value}"
+    line-format: "&e{pos}. &l&a{name} &r&f{value}"
+  tiempo:
+    title: "--- &b&lTIEMPO &r ---"
+    top1: "&e1. &l&b{name} &r&f{value}"
+    top2: "&e2. &l&b{name} &r&f{value}"
+    top3: "&e3. &l&b{name} &r&f{value}"
+    line-format: "&e{pos}. &l&b{name} &r&f{value}"
 
 # Mensajes de los comandos. Placeholders: {categoria} en todos, {distancia} en not-found.
 spawned: "&aHolograma de {categoria} spawneado."

@@ -36,8 +36,9 @@
 
 * `config.yml` - behavior: refresh intervals, top size, economy provider, Money decimals, playtime suffixes.
 * `messages.yml` - everything visual and text-related, no code changes needed:
-  * `titles` - title/color for each category (`&` for colors).
-  * `line-format` - format of each row (`{pos}`, `{name}`, `{value}`).
+  * `categories.<name>.title` - title/color for that category (`&` for colors).
+  * `categories.<name>.top1` / `top2` / `top3` - format for each of the top 3 spots, independently customizable per rank (e.g. gold/silver/bronze).
+  * `categories.<name>.line-format` - format shared by every rank from 4 onward. All of the above use `{pos}`, `{name}`, `{value}` placeholders.
   * `no-data-message` - text shown while a category has no data yet.
   * `prefix` - prefix for every command message.
   * `spawned` / `despawned` / `not-found` / `reloaded` - command messages, with `{categoria}`/`{distancia}` placeholders.
@@ -184,7 +185,7 @@ This project is licensed under the Private License - see [LICENSE](LICENSE) file
 
 | Version | Release Date | Status | Support |
 |---------|-------------|--------|---------|
-| 1.1.3 | 2026-08-20 | 🟢 Active | Full support |
+| 1.2.0 | 2026-08-20 | 🟢 Active | Full support |
 
 See [CHANGELOG.md](CHANGELOG.md) for the full version history.
 

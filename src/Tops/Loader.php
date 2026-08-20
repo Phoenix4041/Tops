@@ -145,15 +145,15 @@ final class Loader extends PluginBase {
 	 * @param list<array{name: string, value: int|float}> $rows
 	 */
 	private function formatTopText(TopCategory $category, array $rows): string {
-		$title = $this->config->categoryTitle($category);
+		$display = $this->config->display($category);
 		if ($rows === []) {
-			return $title . "\n" . $this->config->noDataMessage;
+			return $display->title . "\n" . $this->config->noDataMessage;
 		}
 
-		$lines = [$title];
+		$lines = [$display->title];
 		$place = 1;
 		foreach ($rows as $row) {
-			$lines[] = $this->config->formatLine($place, $row["name"], $this->formatValue($category, $row["value"]));
+			$lines[] = $display->formatLine($place, $row["name"], $this->formatValue($category, $row["value"]));
 			++$place;
 		}
 

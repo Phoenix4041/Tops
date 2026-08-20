@@ -9,11 +9,11 @@ use pocketmine\utils\TextFormat;
 final class TopsConfig {
 	private const VALID_PROVIDERS = ["none", "bedrockeconomy", "economyapi"];
 
-	private const DEFAULT_TITLES = [
-		"kills" => "&l&6Kills",
-		"deaths" => "&l&cMuertes",
-		"dinero" => "&l&aDinero",
-		"tiempo" => "&l&bTiempo Jugado",
+	private const DEFAULT_CATEGORIES = [
+		"kills" => ["title" => "&l&6Kills", "top1" => "&e{pos}. &l&6{name} &r&f{value}", "top2" => "&e{pos}. &l&6{name} &r&f{value}", "top3" => "&e{pos}. &l&6{name} &r&f{value}", "line-format" => "&7{pos}. &f{name} &e{value}"],
+		"deaths" => ["title" => "&l&cMuertes", "top1" => "&e{pos}. &l&c{name} &r&f{value}", "top2" => "&e{pos}. &l&c{name} &r&f{value}", "top3" => "&e{pos}. &l&c{name} &r&f{value}", "line-format" => "&7{pos}. &f{name} &e{value}"],
+		"dinero" => ["title" => "&l&aDinero", "top1" => "&e{pos}. &l&a{name} &r&f{value}", "top2" => "&e{pos}. &l&a{name} &r&f{value}", "top3" => "&e{pos}. &l&a{name} &r&f{value}", "line-format" => "&7{pos}. &f{name} &e{value}"],
+		"tiempo" => ["title" => "&l&bTiempo Jugado", "top1" => "&e{pos}. &l&b{name} &r&f{value}", "top2" => "&e{pos}. &l&b{name} &r&f{value}", "top3" => "&e{pos}. &l&b{name} &r&f{value}", "line-format" => "&7{pos}. &f{name} &e{value}"],
 	];
 
 	private const DEFAULT_MESSAGES = [
@@ -24,7 +24,7 @@ final class TopsConfig {
 	];
 
 	/**
-	 * @param array<string, string> $categoryTitles category value => colorized title
+	 * @param array<string, CategoryDisplay> $categoryDisplays category value => display
 	 * @param array<string, string> $messages key => colorized template (prefix not yet applied)
 	 */
 	private function __construct(
@@ -41,8 +41,7 @@ final class TopsConfig {
 		public readonly string $playtimeMinuteSuffix,
 		public readonly string $playtimeSecondSuffix,
 		public readonly string $noDataMessage,
-		public readonly string $lineFormat,
-		public readonly array $categoryTitles,
+		public readonly array $categoryDisplays,
 		private readonly string $messagePrefix,
 		private readonly array $messages
 	) {
@@ -58,11 +57,23 @@ final class TopsConfig {
 		$hologram = self::section($config, "hologram");
 		$money = self::section($hologram, "money");
 		$playtime = self::section($hologram, "playtime");
-		$titles = self::stringMap(self::section($messages, "titles"), self::DEFAULT_TITLES);
+		$categoriesRaw = self::section($messages, "categories");
 
 		$provider = strtolower(self::toStringOrDefault($economy["provider"] ?? null, "none"));
 		if (!in_array($provider, self::VALID_PROVIDERS, true)) {
 			$provider = "none";
+		}
+
+		$categoryDisplays = [];
+		foreach (self::DEFAULT_CATEGORIES as $categoryValue => $defaults) {
+			$raw = self::stringMap(self::section($categoriesRaw, $categoryValue), $defaults);
+			$categoryDisplays[$categoryValue] = new CategoryDisplay(
+				title: TextFormat::colorize($raw["title"]),
+				top1: TextFormat::colorize($raw["top1"]),
+				top2: TextFormat::colorize($raw["top2"]),
+				top3: TextFormat::colorize($raw["top3"]),
+				lineFormat: TextFormat::colorize($raw["line-format"]),
+			);
 		}
 
 		return new self(
@@ -79,19 +90,14 @@ final class TopsConfig {
 			playtimeMinuteSuffix: self::toStringOrDefault($playtime["minute-suffix"] ?? null, "m"),
 			playtimeSecondSuffix: self::toStringOrDefault($playtime["second-suffix"] ?? null, "s"),
 			noDataMessage: TextFormat::colorize(self::toStringOrDefault($messages["no-data-message"] ?? null, "&7Sin datos todavia")),
-			lineFormat: TextFormat::colorize(self::toStringOrDefault($messages["line-format"] ?? null, "&7#{pos} &f{name} &e{value}")),
-			categoryTitles: array_map(TextFormat::colorize(...), $titles),
+			categoryDisplays: $categoryDisplays,
 			messagePrefix: TextFormat::colorize(self::toStringOrDefault($messages["prefix"] ?? null, "&8[&bTops&8] &r")),
 			messages: array_map(TextFormat::colorize(...), self::stringMap($messages, self::DEFAULT_MESSAGES)),
 		);
 	}
 
-	public function categoryTitle(TopCategory $category): string {
-		return $this->categoryTitles[$category->value] ?? $category->value;
-	}
-
-	public function formatLine(int $pos, string $name, string $value): string {
-		return str_replace(["{pos}", "{name}", "{value}"], [(string) $pos, $name, $value], $this->lineFormat);
+	public function display(TopCategory $category): CategoryDisplay {
+		return $this->categoryDisplays[$category->value];
 	}
 
 	/**
@@ -105,6 +111,10 @@ final class TopsConfig {
 		}
 
 		return $text;
+	}
+
+	public function categoryTitle(TopCategory $category): string {
+		return $this->display($category)->title;
 	}
 
 	/**

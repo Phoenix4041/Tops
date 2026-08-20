@@ -2,6 +2,14 @@
 
 All notable changes to Tops are documented here.
 
+## [1.2.0] - 2026-08-20
+
+### Added
+- Per-category hologram design in `messages.yml`: each category now has its own `title`, its own format for ranks `top1`/`top2`/`top3` (independently customizable, e.g. gold/silver/bronze), and a shared `line-format` for rank 4 onward.
+
+### Changed
+- Replaced the single global `titles` map and `line-format` with a `CategoryDisplay` value object per category, resolved once at config load/reload.
+
 ## [1.1.3] - 2026-08-20
 
 ### Fixed
