@@ -2,6 +2,11 @@
 
 All notable changes to Tops are documented here.
 
+## [1.1.3] - 2026-08-20
+
+### Fixed
+- The `PIG`-based hologram still didn't render on the actual client. Switched to the technique used by working PM5 hologram plugins (e.g. [armorshard1/pmholograms](https://github.com/armorshard1/pmholograms)): a `minecraft:falling_block` actor with its `VARIANT` metadata forced to air's block state, so there's nothing to render but the nameTag — no invisibility flag or scale hack needed.
+
 ## [1.1.2] - 2026-08-20
 
 ### Fixed

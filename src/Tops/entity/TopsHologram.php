@@ -4,21 +4,24 @@ declare(strict_types=1);
 
 namespace Tops\entity;
 
+use pocketmine\block\VanillaBlocks;
 use pocketmine\entity\Entity;
 use pocketmine\entity\EntitySizeInfo;
-use pocketmine\nbt\tag\CompoundTag;
+use pocketmine\network\mcpe\convert\TypeConverter;
 use pocketmine\network\mcpe\protocol\types\entity\EntityIds;
+use pocketmine\network\mcpe\protocol\types\entity\EntityMetadataCollection;
+use pocketmine\network\mcpe\protocol\types\entity\EntityMetadataProperties;
+use pocketmine\nbt\tag\CompoundTag;
 use Tops\TopCategory;
 
-// FloatingTextParticle was removed in PM5; a nameTag on an inert entity is the replacement.
+// FloatingTextParticle was removed in PM5; a falling_block actor rendered as air is the replacement.
 final class TopsHologram extends Entity {
 	private const TAG_CATEGORY = "topsCategory";
 
 	private TopCategory $category = TopCategory::KILLS;
 
 	public static function getNetworkTypeId(): string {
-		// "armor_stand" on a bare Entity lacks the actor components Bedrock needs and doesn't render; an invisible mob does.
-		return EntityIds::PIG;
+		return EntityIds::FALLING_BLOCK;
 	}
 
 	protected function initEntity(CompoundTag $nbt): void {
@@ -28,13 +31,21 @@ final class TopsHologram extends Entity {
 			$nbt->getString(self::TAG_CATEGORY, TopCategory::KILLS->value)
 		) ?? TopCategory::KILLS;
 
-		$this->setInvisible(true);
 		$this->setHasGravity(false);
+		$this->setCanClimb(false);
+		$this->setNoClientPredictions(true);
 		$this->setNameTagVisible(true);
 		$this->setNameTagAlwaysVisible(true);
-		$this->setScale(0.01);
 		$this->setCanSaveWithChunk(true);
 		$this->setNameTag("§7Cargando...");
+	}
+
+	protected function syncNetworkData(EntityMetadataCollection $properties): void {
+		parent::syncNetworkData($properties);
+		$properties->setInt(
+			EntityMetadataProperties::VARIANT,
+			TypeConverter::getInstance()->getBlockTranslator()->internalIdToNetworkId(VanillaBlocks::AIR()->getStateId())
+		);
 	}
 
 	public function saveNBT(): CompoundTag {

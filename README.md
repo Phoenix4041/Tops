@@ -7,7 +7,7 @@
 ## Features
 
 * **4 top categories**: Kills, Deaths, Money and Playtime, each with its own independent hologram.
-* **Real PM5 floating text**: hologram made of an invisible, gravity-less entity (`FloatingTextParticle` no longer exists in PocketMine-MP 5.x), with multi-line text in a single nameTag.
+* **Real PM5 floating text**: `FloatingTextParticle` no longer exists in PocketMine-MP 5.x — the hologram is a `falling_block` actor forced to render as air (no invisibility hack needed), with multi-line text in a single nameTag.
 * **SQLite persistence**: every read/write runs in an `AsyncTask`, never blocks the main thread. Tops are computed with indexed `ORDER BY ... LIMIT` queries. All queries are pinned to a single `AsyncPool` worker (SQLite3 isn't safe across concurrent OS threads).
 * **Plug-and-play economy**: supports BedrockEconomy and EconomyAPI through [libPiggyEconomy](https://github.com/DaPigGuy/libPiggyEconomy), selectable via config with no code changes.
 * **Commands with Commando**: `/tops spawn|despawn|reload` built on the [Commando](https://github.com/CortexPE/Commando) framework, with argument validation, per-subcommand permissions and native Tab-autocomplete on Bedrock clients.
@@ -184,7 +184,7 @@ This project is licensed under the Private License - see [LICENSE](LICENSE) file
 
 | Version | Release Date | Status | Support |
 |---------|-------------|--------|---------|
-| 1.1.2 | 2026-08-20 | 🟢 Active | Full support |
+| 1.1.3 | 2026-08-20 | 🟢 Active | Full support |
 
 See [CHANGELOG.md](CHANGELOG.md) for the full version history.
 
