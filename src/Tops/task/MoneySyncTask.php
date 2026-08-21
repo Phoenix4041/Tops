@@ -49,7 +49,7 @@ final class MoneySyncTask extends Task {
 				return;
 			}
 			$this->lastSynced[$nameLower] = $value;
-			$this->repository->setMoney($nameLower, $value);
+			$this->repository->setMoney($player->getName(), $value);
 		});
 	}
 

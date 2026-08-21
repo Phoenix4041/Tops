@@ -23,23 +23,23 @@ final class StatsRepository {
 		$this->submit(new InitSchemaTask($this->dbPath));
 	}
 
-	public function recordKill(string $playerNameLower): void {
-		$this->submit(new IncrementCounterTask($this->dbPath, $playerNameLower, "kills", 1));
+	public function recordKill(string $playerName): void {
+		$this->submit(new IncrementCounterTask($this->dbPath, strtolower($playerName), $playerName, "kills", 1));
 	}
 
-	public function recordDeath(string $playerNameLower): void {
-		$this->submit(new IncrementCounterTask($this->dbPath, $playerNameLower, "deaths", 1));
+	public function recordDeath(string $playerName): void {
+		$this->submit(new IncrementCounterTask($this->dbPath, strtolower($playerName), $playerName, "deaths", 1));
 	}
 
-	public function addPlaytime(string $playerNameLower, int $secondsToAdd): void {
+	public function addPlaytime(string $playerName, int $secondsToAdd): void {
 		if ($secondsToAdd <= 0) {
 			return;
 		}
-		$this->submit(new IncrementCounterTask($this->dbPath, $playerNameLower, "playtime_seconds", $secondsToAdd));
+		$this->submit(new IncrementCounterTask($this->dbPath, strtolower($playerName), $playerName, "playtime_seconds", $secondsToAdd));
 	}
 
-	public function setMoney(string $playerNameLower, float $amount): void {
-		$this->submit(new SetMoneyTask($this->dbPath, $playerNameLower, $amount));
+	public function setMoney(string $playerName, float $amount): void {
+		$this->submit(new SetMoneyTask($this->dbPath, strtolower($playerName), $playerName, $amount));
 	}
 
 	public function fetchTopLists(int $limit): void {

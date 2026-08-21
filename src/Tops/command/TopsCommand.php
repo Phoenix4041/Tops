@@ -37,4 +37,11 @@ final class TopsCommand extends BaseCommand {
 	public function onRun(CommandSender $sender, string $aliasUsed, array $args): void {
 		$this->sendUsage();
 	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getPermissions(): array {
+		return [Permissions::BASE];
+	}
 }

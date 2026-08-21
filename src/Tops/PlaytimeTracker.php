@@ -5,38 +5,51 @@ declare(strict_types=1);
 namespace Tops;
 
 final class PlaytimeTracker {
-	/** @var array<string, int> lowercase name => session start (unix timestamp) */
-	private array $sessionStart = [];
+	/** @var array<string, array{name: string, start: int}> lowercase name => session data */
+	private array $sessions = [];
 
-	public function start(string $playerNameLower): void {
-		$this->sessionStart[$playerNameLower] = time();
+	public function start(string $playerName): void {
+		$this->sessions[strtolower($playerName)] = ["name" => $playerName, "start" => time()];
 	}
 
 	public function stop(string $playerNameLower): int {
-		$start = $this->sessionStart[$playerNameLower] ?? null;
-		unset($this->sessionStart[$playerNameLower]);
-		if ($start === null) {
+		$session = $this->sessions[$playerNameLower] ?? null;
+		unset($this->sessions[$playerNameLower]);
+		if ($session === null) {
 			return 0;
 		}
 
-		return max(0, time() - $start);
+		return max(0, time() - $session["start"]);
 	}
 
 	// Rebases session start to now so a later flush never re-counts already-persisted seconds.
 	/**
-	 * @return array<string, int> lowercase name => elapsed seconds since last flush
+	 * @return array<string, array{name: string, seconds: int}> lowercase name => elapsed seconds since last flush
 	 */
 	public function flushAndRebase(): array {
 		$now = time();
 		$elapsed = [];
-		foreach ($this->sessionStart as $name => $start) {
-			$delta = $now - $start;
+		foreach ($this->sessions as $nameLower => $session) {
+			$delta = $now - $session["start"];
 			if ($delta > 0) {
-				$elapsed[$name] = $delta;
+				$elapsed[$nameLower] = ["name" => $session["name"], "seconds" => $delta];
 			}
-			$this->sessionStart[$name] = $now;
+			$this->sessions[$nameLower]["start"] = $now;
 		}
 
 		return $elapsed;
+	}
+
+	public function liveSeconds(string $playerNameLower): int {
+		$session = $this->sessions[$playerNameLower] ?? null;
+
+		return $session === null ? 0 : max(0, time() - $session["start"]);
+	}
+
+	/**
+	 * @return array<string, string> lowercase name => real name, for players currently being tracked
+	 */
+	public function trackedNames(): array {
+		return array_map(static fn(array $session): string => $session["name"], $this->sessions);
 	}
 }

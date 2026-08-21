@@ -13,6 +13,7 @@ final class SetMoneyTask extends AsyncTask {
 	public function __construct(
 		private readonly string $dbPath,
 		private readonly string $playerNameLower,
+		private readonly string $displayName,
 		private readonly float $amount
 	) {
 	}
@@ -22,13 +23,14 @@ final class SetMoneyTask extends AsyncTask {
 			$db = new SQLite3($this->dbPath);
 			$db->busyTimeout(5000);
 			$stmt = $db->prepare(
-				"INSERT INTO player_stats (name, money) VALUES (:name, :amount)
-				ON CONFLICT(name) DO UPDATE SET money = :amount"
+				"INSERT INTO player_stats (name, display_name, money) VALUES (:name, :displayName, :amount)
+				ON CONFLICT(name) DO UPDATE SET money = :amount, display_name = :displayName"
 			);
 			if ($stmt === false) {
 				throw new \RuntimeException($db->lastErrorMsg());
 			}
 			$stmt->bindValue(":name", $this->playerNameLower, SQLITE3_TEXT);
+			$stmt->bindValue(":displayName", $this->displayName, SQLITE3_TEXT);
 			$stmt->bindValue(":amount", $this->amount, SQLITE3_FLOAT);
 			$stmt->execute();
 			$stmt->close();

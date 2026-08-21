@@ -17,8 +17,8 @@ final class PlaytimeFlushTask extends Task {
 	}
 
 	public function onRun(): void {
-		foreach ($this->tracker->flushAndRebase() as $nameLower => $elapsedSeconds) {
-			$this->repository->addPlaytime($nameLower, $elapsedSeconds);
+		foreach ($this->tracker->flushAndRebase() as $session) {
+			$this->repository->addPlaytime($session["name"], $session["seconds"]);
 		}
 	}
 }

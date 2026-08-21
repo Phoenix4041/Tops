@@ -2,6 +2,13 @@
 
 All notable changes to Tops are documented here.
 
+## [1.2.1] - 2026-08-21
+
+### Fixed
+- `TopsCommand` relied on `pocketmine\command\Command::getPermissions()` being inherited to satisfy Commando's `IRunnable` interface. That method isn't guaranteed on every PMMP 5.x-API-compatible fork/build, and an outdated bundled copy of the Commando virion in an older build caused `Class TopsCommand contains 1 abstract method` on enable. `TopsCommand` now declares its own `getPermissions()` instead of depending on inherited behavior.
+- Leaderboard names were stored and displayed in lowercase (`strtolower($player->getName())` was the only name ever persisted). Added a `display_name` column to `player_stats`, kept in sync on every kill/death/playtime/money write, so holograms show the player's actual capitalization.
+- The Playtime top only advanced on `PlayerQuitEvent` or the periodic flush (`playtime-flush-interval-ticks`, 5 minutes by default), so an online player's entry stayed stuck for minutes at a time instead of counting up. Top refreshes now merge each online player's live in-memory session time on top of their persisted total, so Playtime updates every `refresh-interval-ticks` like the other categories.
+
 ## [1.2.0] - 2026-08-20
 
 ### Added

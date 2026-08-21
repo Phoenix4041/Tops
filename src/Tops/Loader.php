@@ -106,8 +106,8 @@ final class Loader extends PluginBase {
 
 	protected function onDisable(): void {
 		if (isset($this->playtimeTracker, $this->repository)) {
-			foreach ($this->playtimeTracker->flushAndRebase() as $nameLower => $seconds) {
-				$this->repository->addPlaytime($nameLower, $seconds);
+			foreach ($this->playtimeTracker->flushAndRebase() as $session) {
+				$this->repository->addPlaytime($session["name"], $session["seconds"]);
 			}
 		}
 
@@ -134,11 +134,42 @@ final class Loader extends PluginBase {
 	public function onTopListsFetched(array $lists): void {
 		foreach (TopCategory::cases() as $category) {
 			$rows = $lists[$category->column()] ?? [];
+			if ($category === TopCategory::PLAYTIME) {
+				$rows = $this->mergeLivePlaytime($rows);
+			}
 			$text = $this->formatTopText($category, $rows);
 			foreach ($this->hologramRegistry->getLive($category) as $entity) {
 				$entity->updateText($text);
 			}
 		}
+	}
+
+	/**
+	 * @param list<array{name: string, value: int|float}> $rows
+	 * @return list<array{name: string, value: int|float}>
+	 */
+	private function mergeLivePlaytime(array $rows): array {
+		$byNameLower = [];
+		foreach ($rows as $row) {
+			$byNameLower[strtolower($row["name"])] = $row;
+		}
+
+		foreach ($this->playtimeTracker->trackedNames() as $nameLower => $realName) {
+			$live = $this->playtimeTracker->liveSeconds($nameLower);
+			if ($live <= 0) {
+				continue;
+			}
+			if (isset($byNameLower[$nameLower])) {
+				$byNameLower[$nameLower]["value"] = (int) $byNameLower[$nameLower]["value"] + $live;
+			} else {
+				$byNameLower[$nameLower] = ["name" => $realName, "value" => $live];
+			}
+		}
+
+		$merged = array_values($byNameLower);
+		usort($merged, static fn(array $a, array $b): int => $b["value"] <=> $a["value"]);
+
+		return array_slice($merged, 0, $this->config->topSize);
 	}
 
 	/**

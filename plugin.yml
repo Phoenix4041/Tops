@@ -1,9 +1,8 @@
 name: Tops
-version: 1.2.0
+version: 1.2.1
 main: Tops\Loader
-api: ["5.0.0"]
-authors:
-  - HVNS
+api: 5.0.0
+author: Phoenix4041
 description: Leaderboards de Kills, Deaths, Dinero y Tiempo jugado con hologramas por categoria.
 load: POSTWORLD
 

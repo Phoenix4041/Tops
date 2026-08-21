@@ -26,7 +26,7 @@ final class FetchTopListsTask extends AsyncTask {
 			$db->busyTimeout(5000);
 			foreach (self::COLUMNS as $column) {
 				$stmt = $db->prepare(
-					"SELECT name, {$column} AS value FROM player_stats
+					"SELECT NULLIF(display_name, '') AS display_name, name, {$column} AS value FROM player_stats
 					WHERE {$column} > 0 ORDER BY {$column} DESC LIMIT :limit"
 				);
 				if ($stmt === false) {
@@ -40,7 +40,8 @@ final class FetchTopListsTask extends AsyncTask {
 
 				$rows = [];
 				while (is_array($row = $result->fetchArray(SQLITE3_ASSOC))) {
-					$rows[] = ["name" => (string) $row["name"], "value" => $row["value"]];
+					$displayName = is_string($row["display_name"]) ? $row["display_name"] : (string) $row["name"];
+					$rows[] = ["name" => $displayName, "value" => $row["value"]];
 				}
 				$stmt->close();
 				$lists[$column] = $rows;

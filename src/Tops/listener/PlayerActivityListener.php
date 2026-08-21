@@ -27,16 +27,17 @@ final class PlayerActivityListener implements Listener {
 
 	public function onJoin(PlayerJoinEvent $event): void {
 		$player = $event->getPlayer();
-		$this->playtimeTracker->start(strtolower($player->getName()));
+		$this->playtimeTracker->start($player->getName());
 		$this->syncMoneyNow($player);
 	}
 
 	public function onQuit(PlayerQuitEvent $event): void {
 		$player = $event->getPlayer();
-		$nameLower = strtolower($player->getName());
+		$name = $player->getName();
+		$nameLower = strtolower($name);
 
 		$elapsed = $this->playtimeTracker->stop($nameLower);
-		$this->repository->addPlaytime($nameLower, $elapsed);
+		$this->repository->addPlaytime($name, $elapsed);
 
 		$this->syncMoneyNow($player);
 		$this->moneySyncTask?->forget($nameLower);
@@ -44,7 +45,7 @@ final class PlayerActivityListener implements Listener {
 
 	public function onDeath(PlayerDeathEvent $event): void {
 		$victim = $event->getPlayer();
-		$this->repository->recordDeath(strtolower($victim->getName()));
+		$this->repository->recordDeath($victim->getName());
 
 		$cause = $victim->getLastDamageCause();
 		if (!$cause instanceof EntityDamageByEntityEvent) {
@@ -54,7 +55,7 @@ final class PlayerActivityListener implements Listener {
 		if (!$killer instanceof Player || $killer === $victim) {
 			return;
 		}
-		$this->repository->recordKill(strtolower($killer->getName()));
+		$this->repository->recordKill($killer->getName());
 	}
 
 	private function syncMoneyNow(Player $player): void {
@@ -65,7 +66,7 @@ final class PlayerActivityListener implements Listener {
 			if (!$player->isConnected()) {
 				return;
 			}
-			$this->repository->setMoney(strtolower($player->getName()), (float) $amount);
+			$this->repository->setMoney($player->getName(), (float) $amount);
 		});
 	}
 }

@@ -86,7 +86,7 @@ tops.command.reload     # Reload config.yml / messages.yml (default: op)
 ## Data Tracking
 
 * **Kills / Deaths**: recorded on `PlayerDeathEvent`. Every death counts as a Death; if the killer was another player, it also counts as their Kill.
-* **Playtime**: measured per session (join → quit) and persisted on quit, with a periodic backup flush (`playtime-flush-interval-ticks`) in case the server goes down uncleanly.
+* **Playtime**: measured per session (join → quit) and persisted on quit, with a periodic backup flush (`playtime-flush-interval-ticks`) in case the server goes down uncleanly. Top refreshes blend each online player's live session time on top of their persisted total, so the Playtime top updates every refresh cycle instead of only when a flush happens.
 * **Money**: synced from the selected economy provider, only for online players (batched so it doesn't hit the economy plugin all at once), and stored in the same SQLite table as the other stats.
 
 ---
@@ -185,7 +185,8 @@ This project is licensed under the Private License - see [LICENSE](LICENSE) file
 
 | Version | Release Date | Status | Support |
 |---------|-------------|--------|---------|
-| 1.2.0 | 2026-08-20 | 🟢 Active | Full support |
+| 1.2.1 | 2026-08-21 | 🟢 Active | Full support |
+| 1.2.0 | 2026-08-20 | ⚪ Superseded | - |
 
 See [CHANGELOG.md](CHANGELOG.md) for the full version history.
 
